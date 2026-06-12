@@ -5,7 +5,7 @@
 //  - 惑星の表示サイズだけ太陽より大きめにブースト(5歳でも見える・タップできる)
 
 import * as THREE from 'three';
-import { makePlanetTexture } from './planettex.js?v=3';
+import { makePlanetTexture } from './planettex.js?v=4';
 
 export const POS_SCALE = 10;          // 1 AU = 10 表示単位
 const G = 4 * Math.PI * Math.PI;      // AU³ / (年² · 太陽質量)
@@ -82,7 +82,7 @@ export class SolarSystem {
 
     if (data.ring) {
       const ring = new THREE.Mesh(
-        makeRingGeometry(1.4, 2.4),
+        makeRingGeometry(1.3, 2.5),
         new THREE.MeshBasicMaterial({
           map: makeSaturnRingTexture(),
           side: THREE.DoubleSide, transparent: true, opacity: 0.9, depthWrite: false,

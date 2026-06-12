@@ -195,43 +195,69 @@ export function makePlanetTexture(key) {
   return tex;
 }
 
+// 球体っぽくライティングした円を (cx,cy) に半径rで描く
+function drawSphere(ctx, key, cx, cy, r) {
+  const flat = document.createElement('canvas');
+  flat.width = TW; flat.height = TH;
+  paintTo(flat.getContext('2d'), key);
+  ctx.save();
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.clip();
+  ctx.drawImage(flat, TW * 0.15, 0, TH, TH, cx - r, cy - r, r * 2, r * 2);
+  const shade = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.4, r * 0.2, cx, cy, r);
+  shade.addColorStop(0, 'rgba(255,255,255,0.25)');
+  shade.addColorStop(0.6, 'rgba(0,0,0,0)');
+  shade.addColorStop(1, 'rgba(0,0,0,0.55)');
+  ctx.fillStyle = shade; ctx.fillRect(cx - r, cy - r, r * 2, r * 2);
+  ctx.restore();
+}
+
+// 傾いた環(ドーナツ)を描く。half: 'back'=奥側(上半分) / 'front'=手前側(下半分)
+function drawSaturnRing(ctx, cx, cy, rOuter, rInner, half) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(-0.38);
+  ctx.scale(1, 0.30); // 上から見た楕円に潰す
+  if (half) {
+    // 環を上下半分だけにクリップ(球との前後関係を出す)
+    ctx.beginPath();
+    const y0 = half === 'back' ? -rOuter * 2 : 0;
+    ctx.rect(-rOuter * 2, y0, rOuter * 4, rOuter * 2);
+    ctx.clip();
+  }
+  // 外→内のグラデで濃淡と隙間
+  const g = ctx.createRadialGradient(0, 0, rInner, 0, 0, rOuter);
+  g.addColorStop(0.00, 'rgba(225,212,170,0)');
+  g.addColorStop(0.06, 'rgba(205,190,145,0.85)');
+  g.addColorStop(0.45, 'rgba(238,226,188,0.95)');
+  g.addColorStop(0.60, 'rgba(170,155,120,0.30)'); // カッシーニの間隙
+  g.addColorStop(0.70, 'rgba(232,220,180,0.92)');
+  g.addColorStop(0.97, 'rgba(200,185,140,0.7)');
+  g.addColorStop(1.00, 'rgba(200,185,140,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath();
+  ctx.arc(0, 0, rOuter, 0, Math.PI * 2);
+  ctx.arc(0, 0, rInner, 0, Math.PI * 2, true);
+  ctx.fill('evenodd');
+  ctx.restore();
+}
+
 // 図鑑・ふきだし用: 球体っぽくライティングした円アイコン(canvas要素を返す)
 export function makePlanetIcon(key, size = 96) {
   const c = document.createElement('canvas');
   c.width = c.height = size;
   const ctx = c.getContext('2d');
+  const cx = size / 2, cy = size / 2;
 
-  // 平らなテクスチャを一旦作り、円に貼ってから陰影をのせる
-  const flat = document.createElement('canvas');
-  flat.width = TW; flat.height = TH;
-  paintTo(flat.getContext('2d'), key);
-
-  const r = size / 2;
-  ctx.save();
-  ctx.beginPath(); ctx.arc(r, r, r - 2, 0, Math.PI * 2); ctx.clip();
-  // テクスチャの中央あたりを正方形で切り出して円に収める
-  ctx.drawImage(flat, TW * 0.15, 0, TH, TH, 0, 0, size, size);
-  // 立体感のための陰影(左上が明るい)
-  const shade = ctx.createRadialGradient(r * 0.65, r * 0.6, r * 0.2, r, r, r);
-  shade.addColorStop(0, 'rgba(255,255,255,0.25)');
-  shade.addColorStop(0.6, 'rgba(0,0,0,0)');
-  shade.addColorStop(1, 'rgba(0,0,0,0.55)');
-  ctx.fillStyle = shade; ctx.fillRect(0, 0, size, size);
-  ctx.restore();
-
-  // 土星の環
   if (key === 'saturn') {
-    ctx.save();
-    ctx.translate(r, r);
-    ctx.rotate(-0.35);
-    ctx.scale(1, 0.32);
-    ctx.lineWidth = size * 0.05;
-    ctx.strokeStyle = 'rgba(225,212,170,0.9)';
-    ctx.beginPath(); ctx.arc(0, 0, r * 0.95, 0, Math.PI * 2); ctx.stroke();
-    ctx.strokeStyle = 'rgba(200,185,140,0.7)';
-    ctx.lineWidth = size * 0.03;
-    ctx.beginPath(); ctx.arc(0, 0, r * 1.15, 0, Math.PI * 2); ctx.stroke();
-    ctx.restore();
+    // 環が球の外まで大きく広がり、球と前後で交差する土星
+    const bodyR = size * 0.30;
+    const rOuter = size * 0.48, rInner = size * 0.36;
+    drawSaturnRing(ctx, cx, cy, rOuter, rInner, 'back'); // 奥の環
+    drawSphere(ctx, key, cx, cy, bodyR);                 // 本体
+    drawSaturnRing(ctx, cx, cy, rOuter, rInner, 'front');// 手前の環
+    return c;
   }
+
+  drawSphere(ctx, key, cx, cy, size / 2 - 2);
   return c;
 }

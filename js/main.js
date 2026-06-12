@@ -3,9 +3,9 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { SolarSystem, POS_SCALE } from './kidsolar.js?v=3';
-import { FACTS, EXPERIMENTS, QUIZ } from './facts.js?v=3';
-import { makePlanetIcon } from './planettex.js?v=3';
+import { SolarSystem, POS_SCALE } from './kidsolar.js?v=4';
+import { FACTS, EXPERIMENTS, QUIZ } from './facts.js?v=4';
+import { makePlanetIcon } from './planettex.js?v=4';
 
 const $ = (id) => document.getElementById(id);
 
