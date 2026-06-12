@@ -1,0 +1,24 @@
+name: Deploy GitHub Pages
+
+# mainの内容をgh-pagesブランチに同期する。
+# GitHub Pagesはgh-pagesブランチを公開する設定のため、これだけでサイトが更新される。
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: mainをgh-pagesへ反映
+        run: git push origin HEAD:gh-pages --force

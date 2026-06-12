@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>うちゅうラボ 🚀</title>
+  <link rel="stylesheet" href="css/style.css?v=1">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three.module.min.js",
+      "three/addons/": "./vendor/addons/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="view"></canvas>
+
+  <!-- ホーム -->
+  <div id="screen-home" class="screen">
+    <div class="home-inner">
+      <h1 class="home-title">🚀 うちゅうラボ</h1>
+      <p class="home-sub">うちゅうの ふしぎを あそんで しらべよう!</p>
+      <button id="btn-lab" class="big-btn">🪐 たいようけいで あそぶ</button>
+      <button id="btn-zukan" class="big-btn">📖 ほしの ずかん</button>
+      <button id="btn-quiz" class="big-btn">❓ うちゅう クイズ</button>
+    </div>
+  </div>
+
+  <!-- たいようけいラボ -->
+  <div id="screen-lab" class="screen hidden">
+    <button class="home-btn">🏠 もどる</button>
+    <div id="message" class="hidden"></div>
+
+    <div id="lab-bottom">
+      <div id="experiments"></div>
+      <div id="lab-controls">
+        <button id="speed-slow" class="speed-btn">🐢 ゆっくり</button>
+        <button id="speed-normal" class="speed-btn active">🚶 ふつう</button>
+        <button id="speed-fast" class="speed-btn">🚀 はやい</button>
+        <button id="reset-btn" class="speed-btn reset">↺ もとにもどす</button>
+      </div>
+      <p class="lab-hint">ほしを タップすると おはなしが きけるよ。ドラッグで うごかせるよ!</p>
+    </div>
+  </div>
+
+  <!-- ほしのずかん -->
+  <div id="screen-zukan" class="screen panel-screen hidden">
+    <button class="home-btn">🏠 もどる</button>
+    <h2 class="screen-title">📖 ほしの ずかん</h2>
+    <p class="screen-sub">しりたい ほしを タップしてね</p>
+    <div id="zukan-grid"></div>
+  </div>
+
+  <!-- クイズ -->
+  <div id="screen-quiz" class="screen panel-screen hidden">
+    <button class="home-btn">🏠 もどる</button>
+    <h2 class="screen-title">❓ うちゅう クイズ</h2>
+    <div id="quiz-question-area">
+      <p id="quiz-progress"></p>
+      <p id="quiz-question"></p>
+      <div id="quiz-choices"></div>
+      <p id="quiz-feedback"></p>
+    </div>
+    <div id="quiz-result" class="hidden">
+      <p id="quiz-medal"></p>
+      <p id="quiz-score"></p>
+      <button id="quiz-retry" class="big-btn">🔁 もういちど あそぶ</button>
+    </div>
+  </div>
+
+  <!-- ほしの おはなし ふきだし -->
+  <div id="bubble" class="hidden">
+    <button id="bubble-close">✕</button>
+    <div class="bubble-head">
+      <span id="bubble-emoji"></span>
+      <div>
+        <div id="bubble-name"></div>
+        <div id="bubble-title"></div>
+      </div>
+    </div>
+    <p id="bubble-story"></p>
+    <p id="bubble-fun"></p>
+  </div>
+
+  <script type="module" src="js/main.js?v=1"></script>
+</body>
+</html>
