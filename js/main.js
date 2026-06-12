@@ -3,8 +3,9 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { SolarSystem, POS_SCALE } from './kidsolar.js?v=2';
-import { FACTS, EXPERIMENTS, QUIZ } from './facts.js?v=2';
+import { SolarSystem, POS_SCALE } from './kidsolar.js?v=3';
+import { FACTS, EXPERIMENTS, QUIZ } from './facts.js?v=3';
+import { makePlanetIcon } from './planettex.js?v=3';
 
 const $ = (id) => document.getElementById(id);
 
@@ -44,7 +45,11 @@ let bubbleTimer = null;
 function showFact(key) {
   const f = FACTS[key];
   if (!f) return;
-  $('bubble-emoji').textContent = f.emoji;
+  const slot = $('bubble-emoji');
+  slot.innerHTML = '';
+  const icon = makePlanetIcon(key, 96);
+  icon.className = 'planet-icon-img';
+  slot.appendChild(icon);
   $('bubble-name').textContent = f.name;
   $('bubble-title').textContent = f.title;
   $('bubble-story').textContent = f.story;
@@ -144,7 +149,12 @@ const zukanGrid = $('zukan-grid');
 for (const [key, f] of Object.entries(FACTS)) {
   const card = document.createElement('button');
   card.className = 'zukan-card';
-  card.innerHTML = `<span class="zukan-emoji">${f.emoji}</span><span>${f.name}</span>`;
+  const icon = makePlanetIcon(key, 88);
+  icon.className = 'zukan-icon';
+  card.appendChild(icon);
+  const name = document.createElement('span');
+  name.textContent = f.name;
+  card.appendChild(name);
   card.addEventListener('click', () => showFact(key));
   zukanGrid.appendChild(card);
 }

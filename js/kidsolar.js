@@ -5,6 +5,7 @@
 //  - 惑星の表示サイズだけ太陽より大きめにブースト(5歳でも見える・タップできる)
 
 import * as THREE from 'three';
+import { makePlanetTexture } from './planettex.js?v=3';
 
 export const POS_SCALE = 10;          // 1 AU = 10 表示単位
 const G = 4 * Math.PI * Math.PI;      // AU³ / (年² · 太陽質量)
@@ -68,19 +69,23 @@ export class SolarSystem {
 
   _createBody(data) {
     const isSun = data.key === 'sun';
+    const map = makePlanetTexture(data.key);
     const mesh = new THREE.Mesh(
-      new THREE.SphereGeometry(1, 32, 24),
+      new THREE.SphereGeometry(1, 48, 32),
       isSun
-        ? new THREE.MeshBasicMaterial({ color: data.color })
-        : new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.85 })
+        ? new THREE.MeshBasicMaterial({ map })
+        : new THREE.MeshStandardMaterial({ map, roughness: 0.9, metalness: 0 })
     );
+    // 自転で模様が回って見えるように軸を少し傾ける(天王星は横倒し)
+    mesh.rotation.z = data.key === 'uranus' ? Math.PI / 2 : 0.15;
     this.scene.add(mesh);
 
     if (data.ring) {
       const ring = new THREE.Mesh(
-        new THREE.RingGeometry(1.45, 2.3, 48),
+        makeRingGeometry(1.4, 2.4),
         new THREE.MeshBasicMaterial({
-          color: 0xcdbf9a, side: THREE.DoubleSide, transparent: true, opacity: 0.55,
+          map: makeSaturnRingTexture(),
+          side: THREE.DoubleSide, transparent: true, opacity: 0.9, depthWrite: false,
         })
       );
       ring.rotation.x = Math.PI / 2 - 0.35;
@@ -415,6 +420,8 @@ export class SolarSystem {
       if (!b.alive) continue;
       const p = b.mesh.position.copy(b.pos).multiplyScalar(POS_SCALE);
       b.mesh.scale.setScalar(Math.max(this.displayRadius(b), 1e-6));
+      // 模様が見えるよう、時刻に応じてゆっくり自転(巻き戻しても一貫)
+      b.mesh.rotation.y = this.time * (b.key === 'sun' ? 0.6 : 2.2);
       b.marker.position.copy(p);
       b.label.position.copy(p);
     }
@@ -473,6 +480,39 @@ function makeLabel(text) {
   sprite.scale.set(0.16, 0.04, 1);
   sprite.center.set(0.5, -0.45); // アンカーより少し上に表示
   return sprite;
+}
+
+// 半径方向にテクスチャがマップされる円環(土星の環用)
+function makeRingGeometry(inner, outer, seg = 80) {
+  const g = new THREE.RingGeometry(inner, outer, seg);
+  const pos = g.attributes.position;
+  const uv = g.attributes.uv;
+  const v = new THREE.Vector3();
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i);
+    uv.setXY(i, (v.length() - inner) / (outer - inner), 0.5);
+  }
+  return g;
+}
+
+// 内→外のグラデーション(隙間=カッシーニの間隙つき)
+function makeSaturnRingTexture() {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 8;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 256, 0);
+  g.addColorStop(0.00, 'rgba(180,160,120,0)');
+  g.addColorStop(0.12, 'rgba(200,185,140,0.55)');
+  g.addColorStop(0.35, 'rgba(235,222,180,0.92)');
+  g.addColorStop(0.55, 'rgba(160,145,110,0.25)'); // すきま
+  g.addColorStop(0.62, 'rgba(225,212,170,0.9)');
+  g.addColorStop(0.85, 'rgba(210,196,155,0.7)');
+  g.addColorStop(1.00, 'rgba(200,185,140,0)');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, 256, 8);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
 function makeMarker(color) {
