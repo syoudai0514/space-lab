@@ -3,8 +3,8 @@
 
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { SolarSystem, POS_SCALE } from './kidsolar.js?v=1';
-import { FACTS, EXPERIMENTS, QUIZ } from './facts.js?v=1';
+import { SolarSystem, POS_SCALE } from './kidsolar.js?v=2';
+import { FACTS, EXPERIMENTS, QUIZ } from './facts.js?v=2';
 
 const $ = (id) => document.getElementById(id);
 
